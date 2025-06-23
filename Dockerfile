@@ -1,20 +1,26 @@
-# Utilise une image officielle Node.js (version LTS)
+# Utilise une image Node.js LTS légère et sécurisée
 FROM node:18-alpine
 
-# Crée un dossier de travail dans le conteneur
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copie les fichiers package.json et package-lock.json
+# Copier les fichiers de dépendances d'abord
 COPY package*.json ./
 
-# Installe les dépendances (utilise npm, ou yarn si tu préfères)
-RUN npm install --production
+# Installer les dépendances en mode production
+RUN npm ci --omit=dev
 
-# Copie le reste des fichiers de l'app
+# Copier le reste de l'application
 COPY . .
 
-# Expose le port sur lequel ton app écoute (modifie si besoin)
+# Donne les bons droits pour l'exécution avec UID arbitraire (OpenShift)
+RUN chown -R node:node /app
+
+# Utilise l'utilisateur "node" fourni par l'image officielle
+USER node
+
+# Expose le port (assure-toi qu’il correspond à celui écouté par ton app)
 EXPOSE 3000
 
-# Commande pour démarrer l'application
+# Lancer l'application (modifie selon ton point d’entrée)
 CMD ["node", "index.js"]
