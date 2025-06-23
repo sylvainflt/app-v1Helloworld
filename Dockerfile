@@ -1,17 +1,20 @@
+# Utilise une image officielle Node.js (version LTS)
 FROM node:18-alpine
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+# Crée un dossier de travail dans le conteneur
+WORKDIR /app
 
-WORKDIR /home/node/app
-
+# Copie les fichiers package.json et package-lock.json
 COPY package*.json ./
 
-USER node
+# Installe les dépendances (utilise npm, ou yarn si tu préfères)
+RUN npm install --production
 
-RUN npm install
+# Copie le reste des fichiers de l'app
+COPY . .
 
-COPY --chown=node:node . .
+# Expose le port sur lequel ton app écoute (modifie si besoin)
+EXPOSE 3000
 
-EXPOSE 8080
-
-CMD [ "node", "index.js" ]
+# Commande pour démarrer l'application
+CMD ["node", "index.js"]
